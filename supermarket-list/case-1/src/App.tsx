@@ -19,7 +19,15 @@ function App() {
   }
 
   function handleAdd(event: React.ChangeEvent<Form>) {
-    // Should implement
+    event.preventDefault();
+
+    let value = event.target.elements.text.value;
+
+    let newItem = {id: new Date().getTime(), text: value, completed: false};
+
+    setItems([...items, newItem]);
+
+    event.target.elements.text.value = "";
   }
 
   function handleRemove(id: Item["id"]) {
@@ -34,19 +42,23 @@ function App() {
     <main className={styles.main}>
       <h1>Supermarket list</h1>
       <form onSubmit={handleAdd}>
-        <input name="text" type="text" />
+        <input autoFocus name="text" type="text" />
         <button>Add</button>
       </form>
       <ul>
-        {items?.map((item) => (
-          <li
-            key={item.id}
-            className={item.completed ? styles.completed : ""}
-            onClick={() => handleToggle(item.id)}
-          >
-            {item.text} <button onClick={() => handleRemove(item.id)}>[X]</button>
-          </li>
-        ))}
+        {items.length > 0 ? (
+          items?.map((item) => (
+            <li
+              key={item.id}
+              className={item.completed ? styles.completed : ""}
+              onClick={() => handleToggle(item.id)}
+            >
+              {item.text} <button onClick={() => handleRemove(item.id)}>[X]</button>
+            </li>
+          ))
+        ) : (
+          <span>Cargando...</span>
+        )}
       </ul>
     </main>
   );
