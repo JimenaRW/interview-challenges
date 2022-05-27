@@ -38,9 +38,9 @@ const api = {
     let results = PRODUCTS;
 
     if (query) {
-      results = results.filter((product) => {
-        return product.title.includes(query);
-      });
+      results = results.filter(
+        (product) => product.title.toLowerCase().indexOf(query.toLowerCase()) > -1,
+      );
     }
 
     return new Promise((resolve) => setTimeout(() => resolve(results), 1000));
