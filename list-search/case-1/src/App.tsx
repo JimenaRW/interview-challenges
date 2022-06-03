@@ -11,22 +11,15 @@ import {
   sortArrayDefault,
 } from "./utils/sortArray";
 
+//La query y la preferencia de orden deberían persistirse al recargar la página.
+const initalStateQueryPersist = JSON.parse(localStorage.getItem("queryPersist") || "");
+const initalStateOrderPersist = JSON.parse(localStorage.getItem("orderPersist") || "0");
+
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [query, setQuery] = useState<string>("");
-  const [order, setOrder] = useState<string>("0");
+  const [query, setQuery] = useState<string>(initalStateQueryPersist);
+  const [order, setOrder] = useState<string>(initalStateOrderPersist);
   const [isLoadding, setIsLoadding] = useState(false);
-
-  //La query y la preferencia de orden deberían persistirse al recargar la página.
-  const queryPersist = localStorage.getItem("queryPersist");
-  // (opcional) null/vacio => no se hizo ninguna búsqueda, ok
-  const orderPersist = localStorage.getItem("orderPersist");
-  // (opcional) null/vacio => no se cambio el orden por defecto, ok
-
-  useEffect(() => {
-    queryPersist && setQuery(JSON.parse(queryPersist));
-    orderPersist && setOrder(JSON.parse(orderPersist));
-  }, []);
 
   useEffect(() => {
     setIsLoadding(false);
