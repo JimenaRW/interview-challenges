@@ -1,5 +1,7 @@
 import {useEffect, useState} from "react";
 
+import { ContainerCard, Card, Title, LeyendDetail, AddButton, Aside, BuyButton} from "./elements/HomeEstampitas";
+
 import api from "./api";
 import {Product} from "./types";
 
@@ -13,21 +15,21 @@ function App() {
   return (
     <main>
       <header>Estampitiency</header>
-      <section>
+      <ContainerCard>
         {products.map((product) => (
-          <article key={product.id}>
+          <Card key={product.id}>
             <img src={product.image} />
             <div>
-              <p>{product.title}</p>
-              <p>{product.description}</p>
+              <Title>{product.title}</Title>
+              <LeyendDetail>{product.description}</LeyendDetail>
             </div>
-            <button>Agregar</button>
-          </article>
+            <AddButton>Agregar</AddButton>
+          </Card>
         ))}
-      </section>
-      <aside>
-        <button>3 productos (total: $12)</button>
-      </aside>
+      </ContainerCard>
+      <Aside>
+        <BuyButton>3 productos (total: $12)</BuyButton>
+      </Aside>
       <footer>
         Encontrá la consigna de este ejercicio y otros más{" "}
         <a href="https://github.com/goncy/interview-challenges/tree/main/simple-cart">acá</a>
