@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 
 import {
   ContainerCard,
@@ -10,69 +10,53 @@ import {
   BuyButton,
 } from "./elements/HomeEstampitas";
 import api from "./api";
-import {Product, Cart} from "./types";
+import {Product, ICart, CartContextType} from "./types";
+import {CartContext} from "./context/CartContext";
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<Cart[]>([]);
+  const {cart, addCart, updateCart} = useContext(CartContext) as CartContextType;
 
   useEffect(() => {
     api.list().then(setProducts);
   }, []);
 
   const handleAddProduct = (id: string) => {
-    let copyCart = [...cart];
+    const findProduct = products.find((item) => item.id === id);
 
-    let newProduct = {
-      id,
-      quantity: 1,
-    };
+    if (findProduct) {
+      const newItemCart: ICart = {
+        ...findProduct,
+        productId: findProduct.id,
+        quantity: 1,
+        id: Math.random(),
+      };
 
-    copyCart = copyCart.concat(newProduct);
-    setCart(copyCart);
+      addCart(newItemCart);
+    }
   };
-  const handleAddToCart = (id: string) => {
-    let copyCart = [...cart];
 
-    let productUpdate = copyCart.find((item) => item.id === id);
-
-    productUpdate &&
-      copyCart.map((item) => (item.id === id ? (item.quantity = item.quantity + 1) : item));
-
-    setCart(copyCart);
+  const handleUpdateProductCart = (id: number, action: boolean) => {
+    updateCart(id, action);
   };
-  const handleSubtractToCart = (id: string) => {
-    let copyCart = [...cart];
 
-    let productUpdate = copyCart.find((item) => item.id === id);
-
-    productUpdate && productUpdate.quantity - 1 !== 0
-      ? copyCart.map((item) => (item.id === id ? (item.quantity = item.quantity - 1) : item))
-      : (copyCart = copyCart.filter((item) => item.id !== id));
-
-    setCart(copyCart);
-  };
   const totalQuantity = () => {
-    let totalReducer = [];
-    
-    products.forEach(item => {
-      cart.forEach(cartItem => {
-        if (item.id === cartItem.id) {
-          totalReducer = [
-            ...totalReducer,
-            {
-              quantity: cartItem.quantity, 
-              price: item.price
-            }
-          ]
-        }
-      })
-    })
+    let totalReducer: Array<{quantity: number; price: number}> = [];
 
-    let quantityReduce = totalReducer.reduce((a,b) => a + b.quantity, 0);
-    let priceReduce = totalReducer.reduce((a,b) => a + b.quantity * b.price, 0)
+    cart?.forEach((cartItem) => {
+      totalReducer = [
+        ...totalReducer,
+        {
+          quantity: cartItem.quantity,
+          price: cartItem.price,
+        },
+      ];
+    });
 
-    return {quantityReduce, priceReduce}
+    let quantityReduce = totalReducer.reduce((a, b) => a + b.quantity, 0);
+    let priceReduce = totalReducer.reduce((a, b) => a + b.quantity * b.price, 0);
+
+    return {quantityReduce, priceReduce};
   };
 
   return (
@@ -86,19 +70,29 @@ function App() {
               <Title>{product.title}</Title>
               <LeyendDetail>{product.description}</LeyendDetail>
             </div>
-            {cart.map((el) => el.id === product.id).includes(true) ? (
-              <div style={{flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
-                <AddButton onClick={() => handleSubtractToCart(product.id)}>-</AddButton>
-                {cart.map(
-                  (el) =>
-                    el.id === product.id && (
-                      <AddButton disabled key={product.id + "quantity"}>{el.quantity}</AddButton>
-                    ),
-                )}
-                <AddButton onClick={() => handleAddToCart(product.id)}>+</AddButton>
-              </div>
+            {cart?.map((cartItem: ICart) => cartItem.productId === product.id).includes(true) ? (
+              cart?.map(
+                (cartItem: ICart) =>
+                  cartItem.productId === product.id && (
+                    <div
+                      key={cartItem.productId + "-quantity"}
+                      style={{flexDirection: "row", alignItems: "center", justifyContent: "center"}}
+                    >
+                      <AddButton onClick={() => handleUpdateProductCart(cartItem.id, false)}>
+                        -
+                      </AddButton>
+                      <AddButton disabled={true}>{cartItem.quantity}</AddButton>
+                      <AddButton onClick={() => handleUpdateProductCart(cartItem.id, true)}>
+                        +
+                      </AddButton>
+                    </div>
+                  ),
+              )
             ) : (
-              <AddButton key={product.id + "button"} onClick={() => handleAddProduct(product.id)}>
+              <AddButton
+                key={product.id + "-buttonBuy"}
+                onClick={() => handleAddProduct(product.id)}
+              >
                 Agregar
               </AddButton>
             )}
@@ -107,10 +101,9 @@ function App() {
       </ContainerCard>
       <Aside>
         <BuyButton>
-        {totalQuantity().quantityReduce === 0 ? 
-          ('Inicie su compra') : 
-          (`${totalQuantity().quantityReduce} productos (total: $${totalQuantity().priceReduce})`)
-      }
+          {totalQuantity().quantityReduce === 0
+            ? "Inicie su compra"
+            : `${totalQuantity().quantityReduce} productos (total: $${totalQuantity().priceReduce}`}
         </BuyButton>
       </Aside>
       <footer>
