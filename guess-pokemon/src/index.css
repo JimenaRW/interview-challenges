@@ -7,6 +7,17 @@ main {
   padding: 24px;
 }
 
-img {
+.imagePokemon {
+  height: 500px;
+  width: 550px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 600px;
   image-rendering: pixelated;
+  filter: brightness(0);
+}
+
+form {
+  display: flex;
+  width: 80%;
 }
