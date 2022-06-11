@@ -17,6 +17,10 @@ main {
   filter: brightness(0);
 }
 
+.visible {
+  filter: none;
+}
+
 form {
   display: flex;
   width: 80%;
